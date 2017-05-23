@@ -1,3 +1,3 @@
 MySQL部分题解
 ========
-本文件夹中存储的是LeetCode中MySQL部分的题解，缓慢更新中...
+本文件夹中存储的是LeetCode中MySQL部分的题解。
