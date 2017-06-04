@@ -86,5 +86,18 @@ MySQL解题总结及注意事项
 
 --------
 
+### `delete`语句的使用
+1. 简单的`delete`语句为`delete from XXX(表名) where XXX`
+2. 如果`delete from`后面的表名使用了别名（`as`），则在`delete`与`from`之间一定要出现表的别名。例如`delete t1 from XXX as t1 where XXX`，如果删除`delete`后面的`t1`则会报语法错误。
+3. `delete`可以删除多张表。例如`delete t1, t2 from t1, t2 where XXX`。具体注意事项如下：
+	1. `from`后面如果跟多个表的话，则`from`前面一定要加上需要删除的表名（删除单表可以不加）。否则MySQL不知道删除哪张表的数据。
+	2. 在`from`后面出现出现出现多个表时，只有出现在`from`前面的表才会被删除。例如，`delete t1 from t1, t2`就只会删除t1中的数据，t2中的数据在过程中只作为参考，不会被删除。
+	3. 从from开始后面的部分与select没有什么区别。判断某表中某行数据是否会被删除主要从两个方面决定：
+		1. delete后面有没有出现该表的名称（单表删除的话忽略此条）。
+		2. 将delete替换为select * 后该表中的该行数据有没有出现在结果集中，如果出现，则会被删除，反之则不会（其实就是是否满足后面的条件）。例如`196-Delete-Duplicate-Emails`中的`Solution 3`： `delete p1 from Person as p1 inner join Person as p2 on p1.Email=p2.Email where p1.Id>p2.Id;`，只会删除Person表中`Email`有重复，且`Id`不是重复的`Email`中最小的数据行。
+4. 在MySQL中，还存在另一个问题。就是当按照正常的顺序写完`delete`语句后（例如`delete from Person where Id not in (select min(Id) as Id from Person group by Email);`），运行后会发现报错（`You can't specify target table 'Person' for update in FROM clause`）。原因是MySQL不允许对于一个表查询（`from`该表）后将返回值用来删除同一张表中的数据。要解决这个问题，方法很简单。就是在子查询外面再套一层`select`（`delete from Person where Id not in (select Id from (select min(Id) as Id from Person group by Email) as tmp);`），让数据库误认为这个结果不是从这张表里查询出来的即可。只有MySQL有这个问题。
+
+--------
+
 ## SQL技巧相关
 * 巧用自相关来查重，即自己与自己join。
