@@ -99,5 +99,18 @@ MySQL解题总结及注意事项
 
 --------
 
+### `in`的使用方式
+除了常用的`where 字段 in (值1， 值2， 值3)`外，还可以使用括号来指定字段序列的值。例如`where (字段1, 字段2, 字段3) in ((值1, 值a, 值A), (值2, 值b, 值B), (值1, 值c, 值C))`。这里的`字段1`、`字段2`与`字段3`为`and`关系，即寻找满足`(字段1=值1 and 字段2=值a and 字段3=值A) or (字段1=值2 and 字段2=值b and 字段3=值B) or (字段1=值3 and 字段2=值c and 字段3=值C)`条件的数据。
+同理，`in`也可以与`select`联用。例如`where (字段1, 字段2) in (select 字段a, 字段b from 表a)`，也可以达成上述的效果，且字段1、字段2与字段a、字段b的名称不需要对应，MySQL会根据顺序自动对应的。
+
+--------
+
+### SQL语句中的“逐行查询”（不知道这么表达是否正确）
+在上述的`exists`、`select`语句的描述中，在嵌套的子查询中都出现过主查询中的表名.字段名与子查询的表名.字段名进行比较或运算，以获取最终结果的情况。在SQL中，不仅是这两种情况，还有许多情况，都可以进行这种逐行的查询。即对主查询中的每一行数据，都到嵌套的子查询中去兜一圈，以决定该行数据是否满足查询条件。
+例如`184-Department-Highest-Salary`中的`Solution 4`，`select D.Name as Department, E.Name as Employee, Salary from Employee as E inner join Department as D on DepartmentId=D.Id where Salary=(select max(Salary) from Employee tmp where tmp.DepartmentId=E.DepartmentId);`，在子查询中也出现了这种用法。
+可以说，熟练运用这种查询方法可以大幅度地增加SQL查询的灵活性，在思考解法的时候也可以直截了当，不需要绕弯子去达到目的。
+
+--------
+
 ## SQL技巧相关
 * 巧用自相关来查重，即自己与自己join。
